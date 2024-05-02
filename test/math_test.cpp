@@ -1,18 +1,29 @@
-#include <iostream>
+#include <print>
+#include <vector>
 
-#include <fmath/primary.hpp>
-#include <fmath/matrices.hpp>
-#include <fmath/complex.hpp>
-#include <fmath/math_format.hpp>
+#include "fmath/container/complex.hpp"
+#include "fmath/algorithm/complex.hpp"
 
 int main(int argc, char* argv[]) {
+
+    using std::print;
+    namespace ranges = std::ranges;
     namespace ffm = force::math;
 
-    // namespace ffg = force::geom; // Geometry library
-    // namespace ffp = force::phys; // Physics library
-    // namespace ffv = force::vibr; // Audio and wave handling library
+    
+    std::vector<float> vec = {
+        1,1,1,  2,2,2,
+        3,3,3,  4,4,4
+    };
 
-    ffm::vec4f a = { 1.f, 2.f, 3.f, 4.f};
+    ffm::matrix_view<float> v(vec.data(), 3, 2, 3 * 2, 2);
 
-    std::cout << a << std::endl;
+    auto r = ffm::reverse(v, ffm::sequences::seq_y);
+
+    for (auto i = r.begin(); i != r.end(); ++i) {
+        for (auto j = i.begin(); j != i.end(); ++j) {
+            print("[{},{},{}],", j[0], j[1], j[2]);
+        }
+        print("\n");
+    }
 }
