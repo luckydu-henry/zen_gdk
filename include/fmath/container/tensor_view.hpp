@@ -166,7 +166,6 @@ namespace force::math {
             case sequences::seq_y: return iterator(mPtr, mLengths[2], mLengths[0], mLengths[1]);
             default: break;
             }
-            throw std::out_of_range("Unsupported sequence!");
         }
         constexpr iterator end(access_sequence seq = sequences::seq_y) {
             switch (seq) {
@@ -174,7 +173,6 @@ namespace force::math {
             case sequences::seq_y: return begin(seq) + mLengths[3];
             default: break;
             }
-            throw std::out_of_range("Unsupported sequence!");
         }
         constexpr const_iterator begin(access_sequence seq = sequences::seq_y) const {
             switch (seq) {
@@ -182,7 +180,6 @@ namespace force::math {
             case sequences::seq_y: return iterator(mPtr, mLengths[2], mLengths[0], mLengths[1]);
             default: break;
             }
-            throw std::out_of_range("Unsupported sequence!");
         }
         constexpr const_iterator end(access_sequence seq = sequences::seq_y) const {
             switch (seq) {
@@ -190,7 +187,6 @@ namespace force::math {
             case sequences::seq_y: return begin(seq) + mLengths[3];
             default: break;
             }
-            throw std::out_of_range("Unsupported sequence!");
         }
         // View provides multiple ways to access raw data.
         // Suits developers favors.

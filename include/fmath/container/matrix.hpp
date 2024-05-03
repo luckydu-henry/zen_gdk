@@ -27,7 +27,10 @@ namespace force::math {
         using reverse_iterator        = std::reverse_iterator<iterator>;
         using const_reverse_iterator  = const std::reverse_iterator<iterator>;
 
-        template <typename ... Vars> requires (sizeof ... (Vars) == M * N)
+        constexpr basic_matrix()                    noexcept = default;
+        constexpr basic_matrix(const basic_matrix&) noexcept = default;
+        constexpr basic_matrix(basic_matrix&&)      noexcept = default;
+        template <typename ... Vars> requires ((sizeof ... (Vars) == M * N) && std::is_nothrow_convertible_v<std::common_type_t<Vars...>, Ty>)
         constexpr basic_matrix(const Vars& ... args) : mData{static_cast<value_type>(args) ... ,} {}
         constexpr basic_matrix(const view_type d) : mData{} {
             std::copy_n(d.data(), d.size(), mData);
@@ -40,9 +43,9 @@ namespace force::math {
         constexpr basic_matrix(const Rng& rg) {
             std::ranges::copy(rg, mData);
         }
-        constexpr basic_matrix() noexcept = default;
-        constexpr basic_matrix(const basic_matrix&) noexcept = default;
-        constexpr basic_matrix(basic_matrix&&)      noexcept = default;
+        constexpr basic_matrix& operator=(const basic_matrix&) noexcept = default;
+        constexpr basic_matrix& operator=(basic_matrix&&)      noexcept = default;
+
         // For pure data access, raw matrix only supports y first access.
         constexpr iterator       begin() {
             if constexpr (is_vector) { return first_order_iterator<value_type>(mData, 1); }
@@ -102,7 +105,6 @@ namespace force::math {
             if constexpr (is_vector) { return vector_view<value_type>(const_cast<pointer>(mData + off), 1, y); }
             else return matrix_view<value_type>(const_cast<pointer>(mData + off), 1, x, N, y);
         }
-        ~basic_matrix() = default;
     private:
         value_type mData[M * N];
     };

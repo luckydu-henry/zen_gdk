@@ -9,7 +9,6 @@ int main(int argc, char* argv[]) {
     using std::print;
     namespace ranges = std::ranges;
     namespace ffm = force::math;
-
     
     std::vector<float> vec = {
         1,1,1,  2,2,2,

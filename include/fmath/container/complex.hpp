@@ -9,31 +9,32 @@ namespace force::math {
     template <typename Ty>
     struct complex_mul_div<Ty, 1 << 1> {
         static constexpr void mul(const Ty* a, const Ty* b, Ty* c) {
-            c[0] = a[0] * c[0] - a[1] * b[1];
-            c[1] = a[0] * b[1] + a[1] * b[0];
+            Ty p[2] = { a[0], a[1] };
+            Ty q[2] = { b[0], b[1] };
+            c[0] = p[0] * q[0] - p[1] * q[1];
+            c[1] = p[0] * q[1] + p[1] * q[0];
         }
         static constexpr void div(const Ty* a, const Ty* b, Ty* c) {
-            auto d = b[0] * b[0] + b[1] * b[1];
-            c[0] = (a[0] * b[0] + a[1] * b[1]) / d;
-            c[1] = (a[1] * b[0] - a[0] * b[1]) / d;
+            Ty p[2] = { a[0], a[1] };
+            Ty q[2] = { b[0], b[1] };
+            auto d = q[0] * q[0] + q[1] * q[1];
+            c[0] = (p[0] * q[0] + p[1] * q[1]) / d;
+            c[1] = (p[1] * q[0] - p[0] * q[1]) / d;
         }
     };
     template <typename Ty>
     struct complex_mul_div<Ty, 1 << 2> {
         static constexpr void mul(const Ty* a, const Ty* b, Ty* c) {
-            // For self assign issue.
-            float p[4] = { a[0],a[1],a[2],a[3] };
-            float q[4] = { b[0],b[1],b[2],b[3] };
-
+            Ty p[4] = { a[0],a[1],a[2],a[3] };
+            Ty q[4] = { b[0],b[1],b[2],b[3] };
             c[0] = p[0] * q[0] - p[1] * q[1] - p[2] * q[2] - p[3] * q[3];
             c[1] = p[0] * q[1] + p[1] * q[0] + p[2] * q[3] - p[3] * q[2];
             c[2] = p[0] * q[2] + p[2] * q[0] + p[3] * q[1] - p[1] * q[3];
             c[3] = p[0] * q[3] + p[3] * q[0] + p[1] * q[2] - p[2] * q[1];
         }
         static constexpr void div(const Ty* a, const Ty* b, Ty* c) {
-            // For self assign issue.
-            float p[4] = { a[0],a[1],a[2],a[3] };
-            float q[4] = { b[0],b[1],b[2],b[3] };
+            Ty p[4] = { a[0],a[1],a[2],a[3] };
+            Ty q[4] = { b[0],b[1],b[2],b[3] };
             auto d = q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3];
             c[0] = (p[0] * q[0] + p[1] * q[1] + p[2] * q[2] + p[3] * q[3]) / d;
             c[1] = (p[1] * q[0] - p[0] * q[1] + p[3] * q[2] - p[2] * q[3]) / d;
