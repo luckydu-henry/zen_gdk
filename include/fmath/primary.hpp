@@ -499,7 +499,7 @@ namespace force::math {
     template <integral Int>
     SCALAR_DECL(Int) abs(const Int x) {
         if constexpr (std::is_unsigned_v<Int>) {
-            return Int(1);
+            return Int(x);
         }
         constexpr auto m = (sizeof(Int) << 3) - 1;
         return ((x >> m) ^ x) - (x >> m);

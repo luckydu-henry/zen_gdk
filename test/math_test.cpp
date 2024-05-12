@@ -1,28 +1,32 @@
 #include <print>
 #include <vector>
+#include <iostream>
 
-#include "fmath/container/complex.hpp"
-#include "fmath/algorithm/complex.hpp"
+#include "fmath/complex.hpp"
+#include "fmath/tensor_view.hpp"
+
+void print_matrix(const force::math::basic_matrix<float, 4, 4>& mat) {
+    for (auto i = mat.begin(); i != mat.end(); ++i) {
+        for (auto j = i.begin(); j != i.end(); ++j) {
+            std::print("{}, ", *j);
+        }
+        std::print("\n");
+    }
+}
+
 
 int main(int argc, char* argv[]) {
 
     using std::print;
     namespace ranges = std::ranges;
     namespace ffm = force::math;
-    
-    std::vector<float> vec = {
-        1,1,1,  2,2,2,
-        3,3,3,  4,4,4
-    };
 
-    ffm::matrix_view<float> v(vec.data(), 3, 2, 3 * 2, 2);
+    ffm::basic_matrix<float, 4, 4> x(
+        1,2,3,4,
+        4,3,2,1,
+        1,4,3,2,
+        2,1,4,3
+    );
 
-    auto r = ffm::reverse(v, ffm::sequences::seq_y);
-
-    for (auto i = r.begin(); i != r.end(); ++i) {
-        for (auto j = i.begin(); j != i.end(); ++j) {
-            print("[{},{},{}],", j[0], j[1], j[2]);
-        }
-        print("\n");
-    }
+    print_matrix(ffm::inv(x));
 }
