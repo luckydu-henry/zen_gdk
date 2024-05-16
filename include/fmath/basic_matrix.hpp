@@ -1,13 +1,21 @@
+///
+/// @file      basic_matrix.hpp
+/// @brief     Contains the implementation of the matrix class.
+/// @details   ~
+/// @author    HenryDu
+/// @date      16.05.2024
+/// @copyright © HenryDu 2024. All right reserved.
+///
 #pragma once
+
 #include <algorithm>
 #include <numeric>
-#include <ranges>
-#include <future>
 
 #include "fmath/primary.hpp"
 #include "fmath/tensor_iterator.hpp"
 #include "fmath/tensor_view.hpp"
 namespace force::math {
+    // CRTP to reduce the waste of time for implement.
     template <template <typename, std::size_t, std::size_t> class SubT,
                         typename Ty, std::size_t M, std::size_t N>
     class base_matrix {
@@ -66,17 +74,17 @@ namespace force::math {
         // Operators (for common matrix)
         constexpr decltype(auto)       operator+(const SubT<Ty, M, N>& other) const {
             SubT<Ty, M, N> result;
-            std::transform(mData, mData + size(), other.mData, result.mData, add);
+            std::transform(mData, mData + size(), other.data(), result.data(), add);
             return result;
         }
         constexpr decltype(auto)       operator-(const SubT<Ty, M, N>& other) const {
             SubT<Ty, M, N> result;
-            std::transform(mData, mData + size(), other.mData, result.mData, sub);
+            std::transform(mData, mData + size(), other.data(), result.data(), sub);
             return result;
         }
         constexpr decltype(auto)       operator*(const Ty b) {
             SubT<Ty, M, N> result;
-            std::transform(mData, mData + size(), result.mData, [b](auto g) { return g * b; });
+            std::transform(mData, mData + size(), result.data(), [b](auto g) { return g * b; });
             return result;
         }
         constexpr decltype(auto)       transpose() {
@@ -94,7 +102,7 @@ namespace force::math {
 
     template <typename Ty, std::size_t M, std::size_t N>
     class basic_matrix {};
-
+    // Matrix
     template <typename Ty, std::size_t M, std::size_t N> requires (M != 1 && N != 1)
     class basic_matrix<Ty, M, N> : public base_matrix<basic_matrix, Ty, M, N> {
     public:
@@ -171,6 +179,7 @@ namespace force::math {
         using base_type::mData;
 
     };
+    // Vector
     template <typename Ty, std::size_t M, std::size_t N> requires (M == 1 || N == 1)
     class basic_matrix<Ty, M, N> : public base_matrix<basic_matrix, Ty, M, N> {
     public:
@@ -201,16 +210,18 @@ namespace force::math {
         }
         // Default to dot product.
         template <std::size_t P, std::size_t Q> requires (P == M && Q == N) || (P == N && Q == M)
-        constexpr decltype(auto) operator*(const basic_matrix<Ty, P, Q>& b) const {
+        constexpr decltype(auto) dot(const basic_matrix<Ty, P, Q>& b) const {
             return std::transform_reduce(mData, mData + M * N,
                 b.mData, Ty(0), add, mul);
         }
         template <std::size_t P, std::size_t Q> requires (P == M && Q == N) || (P == N && Q == M)
         constexpr decltype(auto) cross(const basic_matrix<Ty, P, Q>& b) const {
             if constexpr (M * N == 1) {
-                return mData[0] * b.mData[0]; // normal multiplication.
+                // For complex number (binaron)
+                return basic_matrix<Ty, P, Q>(0); // normal multiplication.
             }
             else if constexpr (M * N == 2) {
+                // When you want to find out the area of a triangle this would be useful.
                 return mData[0] * b.mData[1] - mData[1] * b.mData[0];
             }
             else {
@@ -273,6 +284,17 @@ namespace force::math {
         auto a2 = std::transform_reduce(a.data(), a.data() + M * N, Ty(0), add, square);
         return sqrt(a2);
     }
+    template <typename Ty, std::size_t M, std::size_t N>
+    constexpr decltype(auto) operator*(const basic_matrix<Ty, M, N>& m, const Ty& a) {
+        basic_matrix<Ty, M, N> result(m);
+        std::ranges::for_each(result, [a](auto& k) {k = k * a; });
+        return result;
+    }
+    template <typename Ty, std::size_t M, std::size_t N>
+    constexpr decltype(auto) operator*(const Ty& a, const basic_matrix<Ty, M, N>& m) {
+        return operator*(m, a);
+    }
+
     template <typename Ty, std::size_t M>
     constexpr decltype(auto) decompose_lu(const basic_matrix<Ty, M, M>& mat) {
         basic_matrix<Ty, M, M> lower;
@@ -347,7 +369,4 @@ namespace force::math {
         }
         return upper_inv * lower_inv;
     }
-
-
-
 } //!namespace force::math

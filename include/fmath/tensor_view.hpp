@@ -1,8 +1,15 @@
+///
+/// @file      tensor_view.hpp
+/// @brief     Tensor view provides a way to map 1d data to multidimensional.
+/// @details   ~
+/// @author    HenryDu
+/// @date      16.05.2024
+/// @copyright © HenryDu 2024. All right reserved.
+///
 #pragma once
 #include <algorithm>
 
 #include "tensor_iterator.hpp"
-#include "fmath/primary.hpp"
 
 namespace force::math {
 
@@ -48,7 +55,7 @@ namespace force::math {
         constexpr this_type& operator=(const this_type&) noexcept = default;
         constexpr this_type& operator=(this_type&&)      noexcept = default;
 
-        constexpr reference       operator[](const difference_type i) { return mPtr[i]; }
+        constexpr reference       operator[](const difference_type i)       { return mPtr[i]; }
         constexpr const_reference operator[](const difference_type i) const { return mPtr[i]; }
 
         constexpr pointer data() { return mPtr; }
@@ -62,19 +69,7 @@ namespace force::math {
             for (auto i = 0; i != Order; ++i) { pro *= mLengths[1 + (i << 1)]; }
             return pro;
         }
-
         // Transformation methods.
-        constexpr decltype(auto) transpose() const {
-            auto [xs, xl, ys, yl] = this->length();
-            return SubT(this->data(), ys, yl, xs, xl);
-        }
-        constexpr decltype(auto) reverse(access seq = access::horizontal | access::vertical) const {
-            auto ptr = data();
-            auto [xs, xl, ys, yl] = length();
-            if (static_cast<bool>(seq & access::horizontal)) { ptr += (xs * xl - xs); xs = -xs; }
-            if (static_cast<bool>(seq & access::vertical)) { ptr += (ys * yl - ys); ys = -ys; }
-            return SubT(ptr, xs, xl, ys, yl);
-        }
 
         ~base_tensor_view() = default;
     protected:
@@ -156,6 +151,15 @@ namespace force::math {
             range_type cache{ args..., };
             return emplace<range_type>(cache);
         }
+        constexpr decltype(auto) transpose() const {
+            return *this;
+        }
+        constexpr decltype(auto) reverse() const {
+            auto ptr = this->data();
+            auto [xs, xl, ys, yl] = this->length();
+            ptr += (xs * xl - xs); xs = -xs;
+            return this_type(ptr, xs, xl, ys, yl);
+        }
     protected:
         using base_type::mPtr;
         using base_type::mLengths;
@@ -182,45 +186,48 @@ namespace force::math {
         using base_type::operator[];
         using base_type::operator=;
 
+        constexpr void   iterate_sequence(access seq) { mSeq = seq; }
+        constexpr access iterate_sequence()     const { return mSeq; }
+
         // basic_matrix can only use vertical and horizontal to access.
-        constexpr iterator begin(access seq = access::vertical) {
-            switch (seq) {
+        constexpr iterator begin() {
+            switch (mSeq) {
             case access::horizontal: return iterator(mPtr, mLengths[0], mLengths[2], mLengths[3]);
             case access::vertical: return iterator(mPtr, mLengths[2], mLengths[0], mLengths[1]);
             default: break;
             }
         }
-        constexpr iterator end(access seq = access::vertical) {
-            switch (seq) {
-            case access::horizontal: return begin(seq) + mLengths[1];
-            case access::vertical: return begin(seq) + mLengths[3];
+        constexpr iterator end() {
+            switch (mSeq) {
+            case access::horizontal: return begin() + mLengths[1];
+            case access::vertical:   return begin() + mLengths[3];
             default: break;
             }
         }
-        constexpr const_iterator begin(access seq = access::vertical) const {
-            switch (seq) {
+        constexpr const_iterator begin() const {
+            switch (mSeq) {
             case access::horizontal: return iterator(mPtr, mLengths[0], mLengths[2], mLengths[3]);
             case access::vertical: return iterator(mPtr, mLengths[2], mLengths[0], mLengths[1]);
             default: break;
             }
         }
-        constexpr const_iterator end(access seq = access::vertical) const {
-            switch (seq) {
-            case access::horizontal: return begin(seq) + mLengths[1];
-            case access::vertical: return begin(seq) + mLengths[3];
+        constexpr const_iterator end() const {
+            switch (mSeq) {
+            case access::horizontal: return begin() + mLengths[1];
+            case access::vertical:   return begin() + mLengths[3];
             default: break;
             }
         }
         // View provides multiple ways to access raw data.
         // Suits developers favors.
-        constexpr reverse_iterator rbegin (access seq = access::vertical) { return reverse_iterator(end(seq)); }
-        constexpr reverse_iterator rend   (access seq = access::vertical) { return reverse_iterator(begin(seq)); }
-        constexpr reverse_iterator rbegin (access seq = access::vertical)   const { return reverse_iterator(end(seq)); }
-        constexpr reverse_iterator rend   (access seq = access::vertical)   const { return reverse_iterator(begin(seq)); }
-        constexpr const_iterator   cbegin (access seq = access::vertical)   const { return begin(seq); }
-        constexpr const_iterator   cend   (access seq = access::vertical)   const { return end(seq); }
-        constexpr reverse_iterator crbegin(access seq = access::vertical)   const { return rbegin(seq); }
-        constexpr reverse_iterator crend  (access seq = access::vertical)   const { return rend(seq); }
+        constexpr reverse_iterator rbegin () { return reverse_iterator(end()); }
+        constexpr reverse_iterator rend   () { return reverse_iterator(begin()); }
+        constexpr reverse_iterator rbegin ()   const { return reverse_iterator(end()); }
+        constexpr reverse_iterator rend   ()   const { return reverse_iterator(begin()); }
+        constexpr const_iterator   cbegin ()   const { return begin(); }
+        constexpr const_iterator   cend   ()   const { return end(); }
+        constexpr reverse_iterator crbegin()   const { return rbegin(); }
+        constexpr reverse_iterator crend  ()   const { return rend(); }
 
         constexpr this_type      view(difference_type x_off, difference_type y_off, difference_type w, difference_type h) const {
             return this_type(mPtr + (mLengths[0] * x_off + mLengths[2] * y_off), mLengths[0],w, mLengths[2], h);
@@ -230,14 +237,14 @@ namespace force::math {
             auto stride = (seq == access::horizontal) ? mLengths[0] : mLengths[2];
             return tensor_view<value_type, 1>(mPtr + mLengths[0] * x_off + mLengths[2] * y_off, stride, l);
         }
-        constexpr pointer copy(iterator beg, iterator end, pointer dest) const {
+        constexpr pointer copy(pointer dest) const {
             pointer p = nullptr;
-            for (auto i = beg; i != end; ++i) { p  = std::ranges::copy(i, dest); }
+            for (auto i = begin(); i != end(); ++i) { p = std::ranges::copy(i, dest); }
             return p;
         }
-        constexpr pointer move(iterator beg, iterator end, pointer dest) const {
+        constexpr pointer move(pointer dest) const {
             pointer p = nullptr;
-            for (auto i = beg; i != end; ++i) { p = std::ranges::move(i, dest); }
+            for (auto i = begin(); i != end(); ++i) { p = std::ranges::move(i, dest); }
             return p;
         }
         template <typename UnaryFn>
@@ -273,7 +280,21 @@ namespace force::math {
             range_type cache{ args..., };
             return emplace<range_type>(cache);
         }
+
+        constexpr decltype(auto) transpose() const {
+            auto [xs, xl, ys, yl] = this->length();
+            return this_type(this->data(), ys, yl, xs, xl);
+        }
+        constexpr decltype(auto) reverse(access seq = access::horizontal | access::vertical) const {
+            auto ptr = this->data();
+            auto [xs, xl, ys, yl] = this->length();
+            if (static_cast<bool>(seq & access::horizontal)) { ptr += (xs * xl - xs); xs = -xs; }
+            if (static_cast<bool>(seq & access::vertical)) { ptr += (ys * yl - ys); ys = -ys; }
+            return this_type(ptr, xs, xl, ys, yl);
+        }
+
     protected:
+        access mSeq = access::vertical;
         using base_type::mPtr;
         using base_type::mLengths;
     };

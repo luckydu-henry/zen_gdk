@@ -1,8 +1,13 @@
+///
+/// @file      ffmdef.hpp
+/// @brief     Contains some basic constants and definitions.
+/// @details   ~
+/// @author    HenryDu
+/// @date      16.05.2024
+/// @copyright © HenryDu 2024. All right reserved.
+///
 #pragma once
 #include <numbers>
-#include <array>
-#include <bit>
-
 namespace force::math {
     using namespace ::std::numbers;
 

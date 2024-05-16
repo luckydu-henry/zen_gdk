@@ -1,3 +1,11 @@
+///
+/// @file      primary.hpp
+/// @brief     Contains basic functions that could be useful.
+/// @details   ~
+/// @author    HenryDu
+/// @date      16.05.2024
+/// @copyright © HenryDu 2024. All right reserved.
+///
 #pragma once
 #include "fmath/ffmdef.hpp"
 #include <bit> // for std::bit_cast and bit_ceil
