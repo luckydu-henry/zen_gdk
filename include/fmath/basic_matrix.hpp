@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <numeric>
+#include <array>
 
 #include "fmath/primary.hpp"
 #include "fmath/tensor_iterator.hpp"
@@ -44,6 +45,7 @@ namespace force::math {
         constexpr pointer              data()                                    { return mData; }
         constexpr const_pointer        data()                              const { return mData; }
         constexpr size_type            size()                              const { return M * N; }
+        constexpr decltype(auto)       lengths()                           const { return std::to_array({ M, N }); }
         constexpr reference            front()                                   { return mData[0]; }
         constexpr const_reference      front()                             const { return mData[0]; }
         constexpr reference            back()                                    { return mData[size()-1]; }
@@ -96,6 +98,7 @@ namespace force::math {
             }
             return result;
         }
+
     protected:
         Ty mData[M * N];
     };
@@ -131,9 +134,6 @@ namespace force::math {
                     *p++ = *j;
                 }
             }
-        }
-        constexpr decltype(auto) length() const {
-            return std::to_array({ M, N });
         }
         template <std::size_t O>
         constexpr decltype(auto) operator*(const basic_matrix<Ty, N, O>& b) {
@@ -205,8 +205,18 @@ namespace force::math {
             auto p = mData;
             for (auto i = d.begin(); i != d.end(); ++i) { *p++ = *i; }
         }
-        constexpr decltype(auto) length() const {
-             return M * N;
+
+        template <std::size_t P, std::size_t Q> requires (P == M && Q == N) || (P == N && Q == M)
+        constexpr decltype(auto)     operator*(const basic_matrix<Ty, P, Q>& b) const {
+            basic_matrix result;
+            std::transform(mData, mData + this->size(), b.data(), result.data(), mul);
+            return result;
+        }
+        template <std::size_t P, std::size_t Q> requires (P == M && Q == N) || (P == N && Q == M)
+            constexpr decltype(auto) operator/(const basic_matrix<Ty, P, Q>&b) const {
+            basic_matrix result;
+            std::transform(mData, mData + this->size(), b.data(), result.data(), div);
+            return result;
         }
         // Default to dot product.
         template <std::size_t P, std::size_t Q> requires (P == M && Q == N) || (P == N && Q == M)
@@ -294,7 +304,22 @@ namespace force::math {
     constexpr decltype(auto) operator*(const Ty& a, const basic_matrix<Ty, M, N>& m) {
         return operator*(m, a);
     }
-
+    template <typename Ty, std::size_t M, std::size_t N>
+    constexpr decltype(auto) operator/(const basic_matrix<Ty, M, N>& m, const Ty& a) {
+        basic_matrix<Ty, M, N> result(m);
+        std::ranges::for_each(result, [a](auto& k) {k = k / a; });
+        return result;
+    }
+    template <typename Ty, std::size_t M, std::size_t N>
+    constexpr decltype(auto) operator+(const basic_matrix<Ty, M, N>& m) {
+        return m;
+    }
+    template <typename Ty, std::size_t M, std::size_t N>
+    constexpr decltype(auto) operator-(const basic_matrix<Ty, M, N>& m) {
+        basic_matrix<Ty, M, N> result(m);
+        std::ranges::for_each(result, [](auto& k) {k = neg(k); });
+        return result;
+    }
     template <typename Ty, std::size_t M>
     constexpr decltype(auto) decompose_lu(const basic_matrix<Ty, M, M>& mat) {
         basic_matrix<Ty, M, M> lower;

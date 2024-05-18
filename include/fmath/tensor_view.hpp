@@ -301,4 +301,34 @@ namespace force::math {
 
     template <typename Ty> using vector_view = tensor_view<Ty, 1>;
     template <typename Ty> using matrix_view = tensor_view<Ty, 2>;
+
+
+    template <typename Ty, std::size_t M>
+    struct for_each_tensor_view {
+        template <typename Modifier, typename EndOp>
+        constexpr decltype(auto) operator()(auto v, Modifier f, EndOp g) const {
+            for (auto i = v.begin(); i != v.end(); ++i) {
+                for_each_tensor_view<Ty, M - 1>{}(i, f, g);
+            }
+            std::invoke(g);
+        }
+    };
+    template <typename Ty>
+    struct for_each_tensor_view<Ty, 1> {
+        template <typename Modifier, typename EndOp>
+        constexpr decltype(auto) operator()(auto v, Modifier f, EndOp g) const {
+            for (auto i = v.begin(); i != v.end(); ++i) {
+                std::invoke(f, *i);
+            }
+            std::invoke(g);
+        }
+    };
+    template <typename Ty,std::size_t M, typename Modifier, typename EndOp>
+    constexpr decltype(auto) for_each(tensor_view<Ty, M> ts, Modifier f, EndOp g) {
+        return for_each_tensor_view<Ty, M>{}(ts, f, g);
+    }
+    template <typename Ty, std::size_t M, typename Modifier>
+    constexpr decltype(auto) for_each(tensor_view<Ty, M> ts, Modifier f) {
+        return for_each_tensor_view<Ty, M>{}(ts, f, [](){});
+    }
 }

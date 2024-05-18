@@ -186,7 +186,7 @@ namespace force::math {
         return sqrt(z2);
     }
     template <typename Ty, std::size_t N>
-    constexpr decltype(auto) inv(const basic_complex<Ty, N>& z) {
+    constexpr decltype(auto) neg(const basic_complex<Ty, N>& z) {
         auto z2 = std::transform_reduce(z.begin(), z.end(), Ty(0), add, square);
         return rsqrt(z2) * z.conjugate();
     }

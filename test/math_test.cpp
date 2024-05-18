@@ -5,15 +5,6 @@
 #include "fmath/complex.hpp"
 #include "fmath/tensor_view.hpp"
 
-void print_matrix(const force::math::basic_matrix<float, 4, 4>& mat) {
-    for (auto i = mat.begin(); i != mat.end(); ++i) {
-        for (auto j = i.begin(); j != i.end(); ++j) {
-            std::print("{}, ", *j);
-        }
-        std::print("\n");
-    }
-}
-
 int main(int argc, char* argv[]) {
     using std::print;
     namespace ranges = std::ranges;
@@ -25,13 +16,6 @@ int main(int argc, char* argv[]) {
     // ...
     // Literal suffix (orthographic base form)
     // Basic function (normal and exponent e.g. polar form)
-
-    auto z = 1.F + 2.iF;
-
-
-    auto v = z.dot(z);
-    print("{}", v);
-
 
     // Matrix view for image (audio) process.
 
@@ -48,4 +32,14 @@ int main(int argc, char* argv[]) {
     //};
 
 
+    std::pmr::vector<float> v{
+        255,255,255, 0,0,0,
+        1,1,1, 255,255,255
+    };
+
+    ffm::matrix_view<float> view(v.data(), 3, 2, 3 * 2, 2);
+
+    view = view.transpose();
+
+    ffm::for_each(view, [](auto& v) { print("{},", v); }, [] { print("\n"); });
 }

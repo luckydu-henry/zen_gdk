@@ -135,7 +135,7 @@ namespace force::math {
     ///        FLOATING-POINT OPTIMIZED FUNCTIONS(UNARY/BINARY)   ///
     /////////////////////////////////////////////////////////////////
     template <floating_point Float>
-    SCALAR_DECL(Float) rcp(const Float x) {
+    SCALAR_DECL(Float) inv(const Float x) {
         FLOAT_DETAIL_ALIAS(Float);
         return Constants::one / x;
     }
@@ -191,13 +191,6 @@ namespace force::math {
         return std::bit_cast<Float>(i);
     }
     template <floating_point Float>
-    SCALAR_DECL(Float) inv(const Float x) {
-        FLOAT_DETAIL_ALIAS(Float);
-        auto i = std::bit_cast<Int>(x);
-        i ^= Constants::sgn_one_mask;
-        return std::bit_cast<Float>(i);
-    }
-    template <floating_point Float>
     SCALAR_DECL(Float) sqrt(const Float x) {
         FLOAT_DETAIL_ALIAS(Float);
 #if FMA_USE_STD_SQRT
@@ -240,7 +233,7 @@ namespace force::math {
         // Approximation.
         y = Constants::cbrt_approximation(y);
         // Cube root function has f(-x) = -f(x).
-        return x > Constants::zero ? y : inv(y);
+        return x > Constants::zero ? y : (-y);
 #endif
     }
     template <floating_point Float>
@@ -323,7 +316,7 @@ namespace force::math {
         Float t = std::bit_cast<Float>(p) * m;                // theta is the angle translated between [-pi/2, pi/2].
         // Approximation.
         auto  y = Constants::sin_approximation(t);
-        return x > Constants::zero ? y : inv(y);
+        return x > Constants::zero ? y : (-y);
 #endif
     }
     template <floating_point Float>
@@ -357,7 +350,7 @@ namespace force::math {
         Float t = r - Float(d) * Constants::half * pi_v<Float>;
         // Approximation.
         auto  y = Constants::tan_approximation(t);
-        return x > 0 ? y : inv(y);
+        return x > 0 ? y : (-y);
 #endif
     }
     template <floating_point Float>
@@ -409,11 +402,11 @@ namespace force::math {
     }
     template <floating_point Float>
     SCALAR_DECL(Float) asec(const Float x) {
-        return acos(rcp(x));
+        return acos(inv(x));
     }
     template <floating_point Float>
     SCALAR_DECL(Float) acsc(const Float x) {
-        return asin(rcp(x));
+        return asin(inv(x));
     }
 
     template <floating_point Float>
@@ -431,7 +424,7 @@ namespace force::math {
         return ::std::cosh(x);
 #else
         FLOAT_DETAIL_ALIAS(Float);
-        return (exp(x) + exp(inv(x))) * Constants::half;
+        return (exp(x) + exp((-x))) * Constants::half;
 #endif
     }
     template <floating_point Float>
@@ -440,22 +433,22 @@ namespace force::math {
         return ::std::tanh(x);
 #else
         FLOAT_DETAIL_ALIAS(Float);
-        return (exp(x) - exp(inv(x))) / (exp(x) + exp(inv(x)));
+        return (exp(x) - exp((-x))) / (exp(x) + exp((-x)));
 #endif
     }
     template <floating_point Float>
     SCALAR_DECL(Float) coth(const Float x) {
-        return (exp(x) + exp(inv(x))) / (exp(x) - exp(inv(x)));
+        return (exp(x) + exp((-x))) / (exp(x) - exp((-x)));
     }
     template <floating_point Float>
     SCALAR_DECL(Float) sech(const Float x) {
         FLOAT_DETAIL_ALIAS(Float);
-        return Constants::two / (exp(x) + exp(inv(x)));
+        return Constants::two / (exp(x) + exp((-x)));
     }
     template <floating_point Float>
     SCALAR_DECL(Float) csch(const Float x) {
         FLOAT_DETAIL_ALIAS(Float);
-        return Constants::two / (exp(x) - exp(inv(x)));
+        return Constants::two / (exp(x) - exp((-x)));
     }
     template <floating_point Float>
     SCALAR_DECL(Float) asinh(const Float x) {
@@ -497,7 +490,7 @@ namespace force::math {
     template <floating_point Float>
     SCALAR_DECL(Float) acsch(const Float x) {
         FLOAT_DETAIL_ALIAS(Float);
-        return log(rcp(x) + sqrt(Constants::one + x * x) / abs(x));
+        return log(inv(x) + sqrt(Constants::one + x * x) / abs(x));
     }
 
 
