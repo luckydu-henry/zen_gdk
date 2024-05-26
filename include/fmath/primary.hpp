@@ -173,10 +173,6 @@ namespace force::math {
         FLOAT_DETAIL_ALIAS(Float);
         return Int(x + Constants::half * sgn(x));
     }
-    /// @brief  Banker round function uses 4 minus 6 plus 5 even odd check rule.
-    /// @tparam Ty - floating point type.
-    /// @param  x     - input
-    /// @retval       - result
     template <floating_point Float>
     SCALAR_DECL(Float) banker_round(const Float x) {
         FLOAT_DETAIL_ALIAS(Float);
@@ -567,16 +563,12 @@ namespace force::math {
     ///////////////////////////////////////////
     struct square_proto {
         template <typename Ty>
-        constexpr decltype(auto) operator()(const Ty x) const {
-            return x * x;
-        }
+        constexpr decltype(auto) operator()(const Ty x) const { return x * x; }
     };
     constexpr auto square = square_proto{};
     struct cube_proto {
         template <typename Ty>
-        constexpr decltype(auto) operator()(const Ty x) const {
-            return x * x * x;
-        }
+        constexpr decltype(auto) operator()(const Ty x) const { return x * x * x; }
     };
     constexpr auto cube = cube_proto{};
     ////////////////////////////////////////////
@@ -584,30 +576,22 @@ namespace force::math {
     ////////////////////////////////////////////
     struct add_proto {
         template <typename Ty>
-        constexpr decltype(auto) operator()(const Ty x, const Ty y) const {
-            return x + y;
-        }
+        constexpr decltype(auto) operator()(const Ty x, const Ty y) const { return x + y; }
     };
     constexpr auto add = add_proto{};
     struct sub_proto {
         template <typename Ty>
-        constexpr decltype(auto) operator()(const Ty x, const Ty y) const {
-            return x - y;
-        }
+        constexpr decltype(auto) operator()(const Ty x, const Ty y) const { return x - y; }
     };
     constexpr auto sub = sub_proto{};
     struct mul_proto {
         template <typename Ty>
-        constexpr decltype(auto) operator()(const Ty x, const Ty y) const {
-            return x * y;
-        }
+        constexpr decltype(auto) operator()(const Ty x, const Ty y) const { return x * y; }
     };
     constexpr auto mul = mul_proto{};
     struct div_proto {
         template <typename Ty>
-        constexpr decltype(auto) operator()(const Ty x, const Ty y) const {
-            return x / y;
-        }
+        constexpr decltype(auto) operator()(const Ty x, const Ty y) const { return x / y; }
     };
     constexpr auto div = div_proto{};
 #undef SCALAR_DECL

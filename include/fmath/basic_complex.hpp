@@ -1,5 +1,5 @@
 ///
-/// @file      complex.hpp
+/// @file      basic_complex.hpp
 /// @brief     Generalized complex class (for all 2^n dimensional complexes)
 /// @details   ~
 /// @author    HenryDu
@@ -199,6 +199,7 @@ namespace force::math {
     constexpr decltype(auto) sqrt(const basic_complex<Ty, N>& z) {
     }
 
+    // Notice binaron and quaternion can't use suffix the same time!
     namespace binaron_literals {
         constexpr decltype(auto) operator""if (long double x) {
             return binaron<float>{0.F, static_cast<float>(x)};

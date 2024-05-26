@@ -10,7 +10,6 @@
 #include <algorithm>
 
 #include "tensor_iterator.hpp"
-
 namespace force::math {
 
     enum class access : unsigned char{
@@ -18,12 +17,8 @@ namespace force::math {
         horizontal = 1 << 0,
         vertical   = 1 << 1,
     };
-    constexpr access operator|(const access& a, const access& b) {
-        return static_cast<access>(static_cast<unsigned char>(a) | static_cast<unsigned char>(b));
-    }
-    constexpr access operator&(const access& a, const access& b) {
-        return static_cast<access>(static_cast<unsigned char>(a) & static_cast<unsigned char>(b));
-    }
+    constexpr access operator|(const access& a, const access& b) { return static_cast<access>(static_cast<unsigned char>(a) | static_cast<unsigned char>(b)); }
+    constexpr access operator&(const access& a, const access& b) { return static_cast<access>(static_cast<unsigned char>(a) & static_cast<unsigned char>(b)); }
 
     template <typename SubT, typename Ty, std::size_t Order>
     class base_tensor_view {
@@ -102,20 +97,20 @@ namespace force::math {
         using base_type::operator[];
         using base_type::operator=;
 
-        constexpr virtual iterator begin()             { return iterator(mPtr, mLengths[0]); }
-        constexpr virtual iterator end()               { return begin() + mLengths[1]; }
-        constexpr virtual const_iterator begin() const { return iterator(mPtr, mLengths[0]); }
-        constexpr virtual const_iterator end()   const { return begin() + mLengths[1]; }
+        constexpr virtual iterator               begin()             { return iterator(mPtr, mLengths[0]); }
+        constexpr virtual iterator               end()               { return begin() + mLengths[1]; }
+        constexpr virtual const_iterator         begin() const { return iterator(mPtr, mLengths[0]); }
+        constexpr virtual const_iterator         end()   const { return begin() + mLengths[1]; }
 
         constexpr virtual reverse_iterator       rbegin()       { return reverse_iterator(end()); }
         constexpr virtual reverse_iterator       rend()         { return reverse_iterator(begin()); }
         constexpr virtual const_reverse_iterator rbegin() const { return reverse_iterator(end()); }
         constexpr virtual const_reverse_iterator rend()   const { return reverse_iterator(begin()); }
 
-        constexpr const_iterator cbegin()          const { return begin(); }
-        constexpr const_iterator cend()            const { return end(); }
-        constexpr const_reverse_iterator crbegin() const { return rbegin(); }
-        constexpr const_reverse_iterator crend()   const { return rend(); }
+        constexpr const_iterator                 cbegin()          const { return begin(); }
+        constexpr const_iterator                 cend()            const { return end(); }
+        constexpr const_reverse_iterator         crbegin() const { return rbegin(); }
+        constexpr const_reverse_iterator         crend()   const { return rend(); }
 
         constexpr this_type view(difference_type off, difference_type s, difference_type l) const {
             return this_type(mPtr + off, s, l);
@@ -292,16 +287,13 @@ namespace force::math {
             if (static_cast<bool>(seq & access::vertical)) { ptr += (ys * yl - ys); ys = -ys; }
             return this_type(ptr, xs, xl, ys, yl);
         }
-
     protected:
         access mSeq = access::vertical;
         using base_type::mPtr;
         using base_type::mLengths;
     };
-
     template <typename Ty> using vector_view = tensor_view<Ty, 1>;
     template <typename Ty> using matrix_view = tensor_view<Ty, 2>;
-
 
     template <typename Ty, std::size_t M>
     struct for_each_tensor_view {
@@ -329,6 +321,6 @@ namespace force::math {
     }
     template <typename Ty, std::size_t M, typename Modifier>
     constexpr decltype(auto) for_each(tensor_view<Ty, M> ts, Modifier f) {
-        return for_each_tensor_view<Ty, M>{}(ts, f, [](){});
+        return for_each_tensor_view<Ty, M>{}(ts, f, []{});
     }
 }

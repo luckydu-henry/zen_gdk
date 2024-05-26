@@ -98,7 +98,6 @@ namespace force::math {
             }
             return result;
         }
-
     protected:
         Ty mData[M * N];
     };
@@ -147,12 +146,6 @@ namespace force::math {
             }
             return result;
         }
-        constexpr view_type view() const {
-            return matrix_view<value_type>(const_cast<pointer>(mData), 1, N, N, M);
-        }
-        constexpr view_type view(size_type off, size_type y, size_type x) const {
-            return matrix_view<value_type>(const_cast<pointer>(mData + off), 1, x, N, y);
-        }
         // For pure data access, raw matrix only supports y first access.
         constexpr iterator       begin() {
             return second_order_iterator<value_type>(const_cast<pointer>(mData), N, 1, N);
@@ -175,6 +168,14 @@ namespace force::math {
         constexpr const_iterator         cend()    const { return end(); }
         constexpr const_reverse_iterator crbegin() const { return rbegin(); }
         constexpr const_reverse_iterator crend()   const { return rend(); }
+
+        constexpr view_type view() const {
+            return matrix_view<value_type>(const_cast<pointer>(mData), 1, N, N, M);
+        }
+        constexpr view_type view(size_type off, size_type y, size_type x) const {
+            return matrix_view<value_type>(const_cast<pointer>(mData + off), 1, x, N, y);
+        }
+        constexpr operator  view_type() const { return view(); }
     protected:
         using base_type::mData;
 
@@ -278,6 +279,7 @@ namespace force::math {
         constexpr view_type view(size_type off, size_type y) const {
             return vector_view<value_type>(const_cast<pointer>(mData + off), 1, y);
         }
+        constexpr operator  view_type() const { return view(); }
     protected:
         using base_type::mData;
     };
@@ -394,4 +396,5 @@ namespace force::math {
         }
         return upper_inv * lower_inv;
     }
+#undef A
 } //!namespace force::math

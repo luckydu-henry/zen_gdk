@@ -10,7 +10,6 @@
 #include <numbers>
 namespace force::math {
     using namespace ::std::numbers;
-
     // CONCEPTS.
     // I don't know why std library haven't provided this.
     template <typename Ty>
@@ -19,8 +18,6 @@ namespace force::math {
     concept integral = std::integral<Ty>;
     template <typename Ty>
     concept arithmetic = std::floating_point<Ty> || std::integral<Ty>;
-    template <std::size_t N>
-    concept power_aligned = (N & (N - 1)) == 0;
     // TYPEDEFS
 #if defined __STDCPP_FLOAT32_T__
     using ::std::float32_t;
