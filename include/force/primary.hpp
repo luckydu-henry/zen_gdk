@@ -7,16 +7,17 @@
 /// @copyright © HenryDu 2024. All right reserved.
 ///
 #pragma once
-#include "fmath/ffmdef.hpp"
+
+#include "force/predef.hpp"
 #include <bit> // for std::bit_cast and bit_ceil
 
 #if FMA_USE_CMATH
 #include <cmath>
 #endif
 
-#define SCALAR_DECL(RetT) [[nodsicard]] constexpr RetT
+#define SCALAR_DECL(RetT)        [[nodsicard]] constexpr RetT
 #define STATIC_SCALAR_DECL(RetT) [[nodsicard]] static constexpr RetT
-namespace force::math {
+namespace force {
 
     namespace detail {
         template <floating_point Ty> struct ieee_algo_constant;
@@ -36,7 +37,7 @@ namespace force::math {
 
             static constexpr auto sgn_zero_mask = 0x7FFF'FFFFU;
             static constexpr auto sgn_one_mask = 0x8000'0000U;
-            static constexpr auto exp_off_mask = 0x3F80'0000U; // Equal to floating point exponent bias
+            static constexpr auto exp_off_mask = 0x3F80'0000U; // Equal to floating vector exponent bias
 
             static constexpr auto sqrt_magick = 0x1FBD'1DF5U;
             static constexpr auto rsqrt_magick = 0x5F37'59DFU;
@@ -130,7 +131,7 @@ namespace force::math {
         };
     }
     // Make function implementations easier.
-#define FLOAT_DETAIL_ALIAS(n) using Constants=::force::math::detail::ieee_algo_constant<n>; using Int = Constants::correspond_int
+#define FLOAT_DETAIL_ALIAS(n) using Constants=::force::detail::ieee_algo_constant<n>; using Int = Constants::correspond_int
     /////////////////////////////////////////////////////////////////
     ///        FLOATING-POINT OPTIMIZED FUNCTIONS(UNARY/BINARY)   ///
     /////////////////////////////////////////////////////////////////

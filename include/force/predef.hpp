@@ -1,5 +1,5 @@
 ///
-/// @file      ffmdef.hpp
+/// @file      predef.hpp
 /// @brief     Contains some basic constants and definitions.
 /// @details   ~
 /// @author    HenryDu
@@ -8,7 +8,7 @@
 ///
 #pragma once
 #include <numbers>
-namespace force::math {
+namespace force {
     using namespace ::std::numbers;
     // CONCEPTS.
     // I don't know why std library haven't provided this.
